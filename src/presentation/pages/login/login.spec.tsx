@@ -64,7 +64,6 @@ describe('Login Component', () => {
     const validationError = faker.random.words()
     const { sut } = makeSut({ validationError })
     populateEmailField(sut)
-
     simulateStatusForField(sut, 'email', validationError)
   })
 
@@ -77,14 +76,12 @@ describe('Login Component', () => {
 
   test('Should show valid email state if Validation succeeds', () => {
     const { sut } = makeSut()
-
     populateEmailField(sut)
     simulateStatusForField(sut, 'email')
   })
 
   test('Should show valid password state if Validation succeeds', () => {
     const { sut } = makeSut()
-
     populatePasswordField(sut)
     simulateStatusForField(sut, 'password')
   })
@@ -113,5 +110,12 @@ describe('Login Component', () => {
       email,
       password
     })
+  })
+
+  test('Should call Authentication only once', () => {
+    const { sut, authenticationSpy } = makeSut()
+    simulateValidSubmit(sut)
+    simulateValidSubmit(sut)
+    expect(authenticationSpy.callsCount).toBe(1)
   })
 })
