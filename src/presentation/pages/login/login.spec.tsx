@@ -21,9 +21,9 @@ const history = createMemoryHistory({ initialEntries: ['/login'] })
 
 const makeSut = (params?: SutParams): SutTypes => {
   const validationStub = new ValidationStub()
+  validationStub.errorMessage = params?.validationError
   const authenticationSpy = new AuthenticationSpy()
   const saveAccessTokenMock = new SaveAccessTokenMock()
-  validationStub.errorMessage = params?.validationError
   const sut = render(
     <Router history={history}>
       <Login saveAccessToken={saveAccessTokenMock} validation={validationStub} authentication={authenticationSpy} />
@@ -37,14 +37,14 @@ const makeSut = (params?: SutParams): SutTypes => {
 }
 
 const simulateValidSubmit = async (sut: RenderResult, email = faker.internet.email(), password = faker.internet.password()): Promise<void> => {
-  populateEmailField(sut, email)
+  populateField(sut, email)
   populatePasswordField(sut, password)
   const form = sut.getByTestId('form')
   fireEvent.submit(form)
   await waitFor(() => form)
 }
 
-const populateEmailField = (sut: RenderResult, email = faker.internet.email()): void => {
+const populateField = (sut: RenderResult, email = faker.internet.email()): void => {
   const emailInput = sut.getByTestId('email')
   fireEvent.input(emailInput, { target: { value: email } })
 }
@@ -77,7 +77,7 @@ describe('Login Component', () => {
   test('Should show email error if Validation fails', () => {
     const validationError = faker.random.words()
     const { sut } = makeSut({ validationError })
-    populateEmailField(sut)
+    populateField(sut)
     Helper.testStatusForField(sut, 'email', validationError)
   })
 
@@ -90,7 +90,7 @@ describe('Login Component', () => {
 
   test('Should show valid email state if Validation succeeds', () => {
     const { sut } = makeSut()
-    populateEmailField(sut)
+    populateField(sut)
     Helper.testStatusForField(sut, 'email')
   })
 
@@ -102,7 +102,7 @@ describe('Login Component', () => {
 
   test('Should enable submit button if form is valid', () => {
     const { sut } = makeSut()
-    populateEmailField(sut)
+    populateField(sut)
     populatePasswordField(sut)
     Helper.testButtonIsDisabled(sut, 'submit', false)
   })
